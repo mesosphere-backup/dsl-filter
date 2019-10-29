@@ -55,14 +55,18 @@ function combineFunctionFactory(ast, leftFilterFn, rightFilterFn) {
        * on which the filers have to be applied.
        *
        * @param {Object} filters - An object containing the valid filters that can be used
-       * @param {List} resultset - An instance of List or Tree containing the items to filter
-       * @returns {List} resultset - A new instance of a List, containing the results
+       * @param {Array} resultset - An instance of List or Tree containing the items to filter
+       * @returns {Array} resultset - A new instance of a List, containing the results
        */
       return function(filters, resultset) {
         // We are interested in the union of the results of the two filters
         const intermediateResultset = leftFilterFn(filters, resultset);
 
-        return intermediateResultset.combine(rightFilterFn(filters, resultset));
+        return Array(
+          ...new Set(
+            intermediateResultset.concat(rightFilterFn(filters, resultset))
+          )
+        );
       };
   }
 }
@@ -106,12 +110,21 @@ function filterFunctionFactory(ast) {
     return filters
       .filter(f => f.filterCanHandle(ast.filterType, ast.filterParams))
       .reduce(function(currentResultset, filter) {
-        return currentResultset.combine(
-          filter.filterApply(resultset, ast.filterType, ast.filterParams)
+        return Array(
+          ...new Set(
+            currentResultset.concat(
+              filter.filterApply(resultset, ast.filterType, ast.filterParams)
+            )
+          )
         );
       }, new resultset.constructor());
   };
 }
+
+const factories = {
+  combineFunctionFactory,
+  filterFunctionFactory
+};
 
 /**
  * The following functions are used by the JISON generated code in order to parse
@@ -138,7 +151,7 @@ export const Merge = {
     const ast = new CombinerNode(DSLCombinerTypes.AND, f1.ast, f2.ast);
 
     return {
-      filter: combineFunctionFactory(ast, f1.filter, f2.filter),
+      filter: factories.combineFunctionFactory(ast, f1.filter, f2.filter),
       ast
     };
   },
@@ -155,7 +168,7 @@ export const Merge = {
     const ast = new CombinerNode(DSLCombinerTypes.OR, f1.ast, f2.ast);
 
     return {
-      filter: combineFunctionFactory(ast, f1.filter, f2.filter),
+      filter: factories.combineFunctionFactory(ast, f1.filter, f2.filter),
       ast
     };
   }
@@ -187,7 +200,7 @@ export const Operator = {
     ast.position.push([vstart, vend]);
 
     return {
-      filter: filterFunctionFactory(ast),
+      filter: factories.filterFunctionFactory(ast),
       ast
     };
   },
@@ -205,7 +218,7 @@ export const Operator = {
     const ast = new FilterNode(start, end, DSLFilterTypes.EXACT, { text });
 
     return {
-      filter: filterFunctionFactory(ast),
+      filter: factories.filterFunctionFactory(ast),
       ast
     };
   },
@@ -223,8 +236,13 @@ export const Operator = {
     const ast = new FilterNode(start, end, DSLFilterTypes.FUZZY, { text });
 
     return {
-      filter: filterFunctionFactory(ast),
+      filter: factories.filterFunctionFactory(ast),
       ast
     };
   }
 };
+
+export function setFactories(combineFunctionFactory, filterFunctionFactory) {
+  factories.combineFunctionFactory = combineFunctionFactory;
+  factories.filterFunctionFactory = filterFunctionFactory;
+}
