@@ -1,12 +1,13 @@
 {
   "name": "@d2iq/dsl-filter",
   "main": "dist/index.js",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "license": "Apache-2.0",
   "scripts": {
     "test": "jest",
     "test:watch": "npm test -- --watch",
-    "prepublish": "npm run build",
+    "prepublish": "npm run clean && npm run build",
+    "clean": "rm -rf dist",
     "build": "tsc"
   },
   "files": [
