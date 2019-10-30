@@ -1,6 +1,3 @@
-import List from "#SRC/js/structs/List";
-import Node from "#SRC/js/structs/Node";
-
 import { FilterType } from "./DSLFilterTypes";
 
 type Arguments = {
@@ -18,11 +15,7 @@ export default interface DSLFilter {
    * Apply the filter to the given result set, using the operand details given
    * Returns the new, filtered list
    */
-  filterApply(
-    resultset: List<Node>,
-    type: FilterType,
-    args: Arguments
-  ): List<Node>;
+  filterApply(resultset: [], type: FilterType, args: Arguments): [];
 }
 
 // we need this as long as you find something when grep'ing for `extends DSLFilter`.

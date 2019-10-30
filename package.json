@@ -1,19 +1,32 @@
 {
   "name": "@d2iq/dsl-filter",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "version": "0.1.0",
   "license": "Apache-2.0",
   "scripts": {
     "test": "jest",
-    "test:watch": "npm test -- --watch"
+    "test:watch": "npm test -- --watch",
+    "prepublish": "npm run build",
+    "build": "tsc"
   },
+  "files": [
+    "dist",
+    "src",
+    "index.js"
+  ],
   "peerDependencies": {},
-  "devDependencies": {},
-  "jest-webpack-alias": {},
-  "dependencies": {
+  "devDependencies": {
     "@types/jest": "22.2.3",
+    "babel-plugin-dynamic-import-node": "2.3.0",
+    "babel-plugin-syntax-dynamic-import": "6.18.0",
+    "babel-preset-env": "1.7.0",
+    "babel-preset-stage-3": "6.24.1",
     "jest-cli": "22.4.0",
     "jison": "0.4.18",
-    "ts-jest": "22.4.6"
-  }
+    "ts-jest": "22.4.6",
+    "typescript": "^3.6.4"
+  },
+  "jest-webpack-alias": {},
+  "dependencies": {}
 }
